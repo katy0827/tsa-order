@@ -282,13 +282,18 @@ function showScreen(name){
   if(name==='orders')loadOrders();
 }
 
-function buildSelect(sel){
-  let h='<select><option value="">— 選擇品項 —</option>';
-  for(const[cat,items]of Object.entries(MENU)){
+function buildDrinkSelect(){
+  const drinkCats=["☕ 咖啡","🍵 經典茶","🧋 果汁／奶茶／氣泡"];
+  let h='<option value="">— 選擇飲品 —</option>';
+  drinkCats.forEach(cat=>{
+    const items=MENU[cat];
+    if(!items)return;
     h+=`<optgroup label="${cat}">`;
-    for(const item of items){h+=`<option value="${item.name}|||${item.price}"${item.name===sel?' selected':''}>${item.name}（NT$${item.price}）</option>`;}
+    items.forEach(i=>{h+=`<option value="${i.name}">${i.name}（NT$${i.price}）</option>`;});
     h+='</optgroup>';
-  }
+  });
+  document.getElementById('set-drink-select').innerHTML=h;
+}
   return h+'</select>';
 }
 
