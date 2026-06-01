@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TSA 聚餐點餐表</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --yellow: #F5C842;
+  --yellow-light: #FFF8DC;
+  --yellow-dark: #D4A017;
+  --bg: #FAFAF7;
+  --card: #FFFFFF;
+  --text: #1A1A1A;
+  --muted: #777;
+  --border: #E8E4D9;
+  --green: #2E7D4F;
+  --green-bg: #EAF5EE;
+  --red: #C0392B;
+  --red-bg: #FDEDEC;
+  --budget: 600;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header {
+  background: var(--yellow);
+  padding: 2rem 1.5rem 1.5rem;
+  text-align: center;
+  border-bottom: 3px solid var(--yellow-dark);
+}
+header h1 { font-size: 1.8rem; font-weight: 700; color: #1A1A1A; letter-spacing: 0.05em; }
+header p { margin-top: 0.4rem; font-size: 0.9rem; color: #555; }
+.budget-chip {
+  display: inline-block; margin-top: 0.75rem;
+  background: #fff; border: 2px solid var(--yellow-dark);
+  border-radius: 99px; padding: 4px 16px;
+  font-size: 0.85rem; font-weight: 700; color: var(--yellow-dark);
+}
+
+.sticky-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--card); border-bottom: 1.5px solid var(--border);
+  padding: 10px 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.stats { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+.stat { font-size: 0.8rem; color: var(--muted); }
+.stat strong { font-weight: 700; color: var(--text); font-size: 1rem; }
+.export-btn {
+  background: var(--yellow); border: 2px solid var(--yellow-dark);
+  border-radius: 8px; padding: 7px 16px; font-size: 0.85rem;
+  font-weight: 700; cursor: pointer; color: #1A1A1A; transition: background 0.15s;
+  font-family: inherit;
+}
+.export-btn:hover { background: var(--yellow-dark); color: #fff; }
+
+main { max-width: 860px; margin: 0 auto; padding: 1.5rem; }
+
+.person-card {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: 14px; margin-bottom: 12px; overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.person-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+.person-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; cursor: pointer; user-select: none;
+}
+.avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.name-block { flex: 1; min-width: 0; }
+.name-block .name { font-size: 1rem; font-weight: 700; }
+.name-block .email { font-size: 0.75rem; color: var(--muted); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.badge {
+  font-size: 0.8rem; font-weight: 700; padding: 4px 12px;
+  border-radius: 99px; white-space: nowrap;
+}
+.badge-empty { background: #F0EFE8; color: #999; }
+.badge-ok { background: var(--green-bg); color: var(--green); }
+.badge-over { background: var(--red-bg); color: var(--red); }
+.chevron { font-size: 1.1rem; color: var(--muted); transition: transform 0.2s; flex-shrink: 0; }
+.chevron.open { transform: rotate(180deg); }
+
+.order-body {
+  padding: 0 18px 16px; border-top: 1.5px solid var(--border);
+}
+.order-row {
+  display: grid; grid-template-columns: 1fr auto auto;
+  gap: 10px; align-items: center; margin-top: 10px;
+}
+.order-row select {
+  font-family: inherit; font-size: 0.85rem;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 7px 10px; background: var(--bg); color: var(--text);
+  cursor: pointer; width: 100%;
+}
+.order-row select:focus { outline: none; border-color: var(--yellow-dark); }
+.qty-ctrl { display: flex; align-items: center; gap: 6px; }
+.qty-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1.5px solid var(--border); background: var(--bg);
+  cursor: pointer; font-size: 1.1rem; display: flex;
+  align-items: center; justify-content: center;
+  color: var(--text); font-family: inherit; transition: background 0.15s;
+}
+.qty-btn:hover { background: var(--yellow-light); border-color: var(--yellow-dark); }
+.qty-val { font-size: 0.9rem; font-weight: 700; min-width: 22px; text-align: center; }
+.item-price { font-size: 0.85rem; color: var(--muted); min-width: 60px; text-align: right; }
+.del-btn {
+  width: 30px; height: 30px; border-radius: 50%; border: none;
+  background: none; cursor: pointer; color: #bbb; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center; transition: 0.15s;
+}
+.del-btn:hover { background: var(--red-bg); color: var(--red); }
+.add-btn {
+  margin-top: 10px; background: none; border: 1.5px dashed var(--border);
+  border-radius: 8px; padding: 8px 14px; font-family: inherit;
+  font-size: 0.82rem; color: var(--muted); cursor: pointer; width: 100%;
+  transition: 0.15s;
+}
+.add-btn:hover { border-color: var(--yellow-dark); color: var(--yellow-dark); background: var(--yellow-light); }
+.subtotal-row {
+  display: flex; justify-content: flex-end; align-items: center;
+  gap: 10px; margin-top: 12px; padding-top: 10px;
+  border-top: 1.5px solid var(--border); font-size: 0.85rem;
+}
+.subtotal-row .remain { color: var(--green); font-size: 0.78rem; }
+.subtotal-row .exceed { color: var(--red); font-size: 0.78rem; }
+.subtotal-row .label { color: var(--muted); }
+.subtotal-row .amount { font-size: 1.05rem; font-weight: 700; }
+
+footer { text-align: center; padding: 2rem; font-size: 0.78rem; color: #bbb; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🍽 TSA 聚餐點餐表</h1>
+  <p>點選姓名展開，為自己選擇喜歡的餐點</p>
+  <span class="budget-chip">每人額度 NT$600</span>
+</header>
+
+<div class="sticky-bar">
+  <div class="stats">
+    <div class="stat">總人數 <strong>20</strong></div>
+    <div class="stat">已點 <strong id="s-ordered">0</strong> 人</div>
+    <div class="stat">超額 <strong id="s-over" style="color:var(--red)">0</strong> 人</div>
+    <div class="stat">預估總額 <strong id="s-total">NT$0</strong></div>
+  </div>
+  <button class="export-btn" onclick="exportData()">📋 匯出明細</button>
+</div>
+
+<main id="main"></main>
+<footer>TSA Group 聚餐點餐系統</footer>
+
+<script>
+const BUDGET = 600;
+const MENU = {
+  "🥗 前菜": [
+    {name:"黃金薯泥起司球",price:130},{name:"唐揚炸雞",price:180},
+    {name:"日式炸豆腐雞塊",price:180},{name:"香酥魚條+薯條雙拼",price:180},
+    {name:"綜合炸薯拼盤",price:220},{name:"酥炸魷魚雙拼",price:250},
+  ],
+  "🍗 唐揚手羽": [
+    {name:"名古屋醬燒雞翅",price:280},{name:"韓式蜂蜜辣雞翅",price:280},
+    {name:"泰式檸檬雞翅",price:280},{name:"單點 3腿3翅",price:280},
+    {name:"雙拼 2腿2翅（共4腿4翅）",price:360},
+  ],
+  "🥬 沙拉": [
+    {name:"彩虹雞肉沙拉",price:320},{name:"彩虹骰子蝦沙拉",price:420},
+    {name:"彩虹栗子沙拉",price:300},
+  ],
+  "🍱 波奇碗": [
+    {name:"輕蔬野菇波奇碗",price:300},{name:"嫩煎雞肉酪梨波奇碗",price:320},
+    {name:"鮮鮭魚酪梨波奇碗",price:350},
+  ],
+  "🍛 咖哩飯": [
+    {name:"日式松阪豬咖哩飯",price:330},{name:"嫩煎牛咖哩飯",price:360},
+    {name:"唐揚炸雞咖哩飯",price:310},
+  ],
+  "🍲 和風雜炊": [
+    {name:"味噌鮭玉子雜炊",price:310},{name:"綜合海鮮鮭魚雜炊",price:330},
+  ],
+  "🍜 湯丼飯": [
+    {name:"香煎鱸魚蕃茄汁湯丼飯",price:390},{name:"鮮蝦勁野菇湯丼飯",price:360},
+    {name:"黑鑽松露海鮮湯丼飯",price:400},{name:"香煎嫩栗子湯丼飯",price:380},
+  ],
+  "🥩 漢堡排": [
+    {name:"經典蘿蔔泥漢堡排",price:360},{name:"炙燒明太子漢堡排",price:390},
+  ],
+  "🍔 漢堡": [
+    {name:"橙香豬肉元氣堡",price:300},{name:"雙層和牛起司堡",price:340},
+    {name:"未來肉起司蔬菜堡",price:360},{name:"加起司漢布",price:80},
+  ],
+  "🍝 義大利麵": [
+    {name:"經典蕃茄新豬肉醬貝殼麵",price:310},{name:"羅勒青醬炸雞貝殼麵",price:330},
+    {name:"煙燻魚明太子海膽醬",price:370},{name:"奶油松露野菇貝殼麵",price:350},
+    {name:"南洋酸辣海鮮義大利麵",price:420},{name:"日式味噌培根義大利麵",price:320},
+  ],
+  "🥞 雲の鬆餅": [
+    {name:"經典蜂蜜冰淇淋鬆餅",price:300},{name:"莓果塔冰淇淋鬆餅",price:370},
+    {name:"檸檬冰淇淋鬆餅",price:320},{name:"蒙布朗冰淇淋鬆餅",price:370},
+    {name:"松露巧克力冰淇淋鬆餅",price:390},{name:"芭娜娜蘋果冰淇淋鬆餅",price:380},
+    {name:"泰奶椰香冰淇淋鬆餅",price:390},
+  ],
+  "☕ 咖啡": [
+    {name:"美式義大利",price:130},{name:"西西里檸檬",price:160},
+    {name:"經典拿鐵",price:160},{name:"岩鹽拿鐵",price:170},
+  ],
+  "🍵 經典茶": [
+    {name:"格雷伯爵茶",price:130},{name:"玄米烏龍茶",price:130},
+    {name:"熟果烏龍茶",price:130},{name:"蕎麥鮮綠茶",price:140},
+    {name:"香橙烏龍冰茶",price:170},{name:"天堂烏冰茶",price:170},
+    {name:"綜合水果茶",price:180},{name:"黃金柑橘水果茶",price:150},
+    {name:"洛神野莓花果茶",price:150},{name:"香蘋杏桃花果茶",price:150},
+    {name:"香柚檸檬草花果茶",price:150},
+  ],
+  "🧋 果汁／奶茶／氣泡": [
+    {name:"檸檬鳳梨汁",price:200},{name:"綜合果汁",price:200},
+    {name:"純厚奶茶",price:150},{name:"黑糖伯爵厚奶茶",price:150},
+    {name:"雲朵奶蓋泰式奶茶",price:180},{name:"雲朵牛奶糖奶茶",price:200},
+    {name:"熱帶森林輕氣泡",price:180},{name:"蜜桃荔枝輕氣泡",price:180},
+    {name:"青蘋果樂園莫西多",price:200},
+  ],
+};
+
+const PEOPLE = [
+  {name:"Aida 林俐廷",email:"aidalin@tsagroup.com.tw"},
+  {name:"Amanda 黃如華",email:"amandahuang@tsagroup.com.tw"},
+  {name:"Barney 劉怡伶",email:"barney@tsagroup.com.tw"},
+  {name:"Chris 陳家翔",email:"chrischen@tsagroup.com.tw"},
+  {name:"Dori 陳姿璇",email:"dori@tsagroup.com.tw"},
+  {name:"Gwen 陳冠孜",email:"gwenchen@tsagroup.com.tw"},
+  {name:"Jacob 呂世評",email:"jacob@tsagroup.com.tw"},
+  {name:"Jessica 李潔慧",email:"jessica@tsagroup.com.tw"},
+  {name:"Jimmy 王鈞逸",email:"jimmywang@tsagroup.com.tw"},
+  {name:"John 黃文傳",email:"johnhuang@tsagroup.com.tw"},
+  {name:"TSA Marketing",email:"marketing@tsagroup.com.tw"},
+  {name:"Molly 何舒維",email:"mollyho@tsagroup.com.tw"},
+  {name:"Penny 李品嫺",email:"pennyli@tsagroup.com.tw"},
+  {name:"Sandy 鄒馨瑩",email:"sandy@tsagroup.com.tw"},
+  {name:"Senou 歐倩妤",email:"senou@tsagroup.com.tw"},
+  {name:"Stefanie 邱湘芬",email:"stefanie@tsagroup.com.tw"},
+  {name:"Tiana 李亭儀",email:"tianali@tsagroup.com.tw"},
+  {name:"Tim 徐唯庭",email:"timhsu@tsagroup.com.tw"},
+  {name:"Will 吳政哲",email:"willwu@tsagroup.com.tw"},
+  {name:"Zola 曾子柔",email:"zolatseng@tsagroup.com.tw"},
+];
+
+const AVATAR_COLORS = [
+  {bg:"#FFF0CC",tc:"#8A6000"},{bg:"#E8F4FF",tc:"#1A5C8A"},
+  {bg:"#F0FFF4",tc:"#1A6B3A"},{bg:"#FFF0F5",tc:"#8A1A4A"},
+  {bg:"#F5F0FF",tc:"#5A1A8A"},{bg:"#FFF5F0",tc:"#8A3A1A"},
+  {bg:"#F0FFF9",tc:"#1A6B5A"},
+];
+
+let orders = {};
+let expanded = {};
+PEOPLE.forEach(p => { orders[p.email] = []; expanded[p.email] = false; });
+
+function getTotal(email) {
+  return orders[email].reduce((s,r) => s + r.price * r.qty, 0);
+}
+
+function buildSelectHTML(selectedName) {
+  let html = `<select>`;
+  html += `<option value="">— 選擇品項 —</option>`;
+  for (const [cat, items] of Object.entries(MENU)) {
+    html += `<optgroup label="${cat}">`;
+    for (const item of items) {
+      const sel = item.name === selectedName ? ' selected' : '';
+      html += `<option value="${item.name}|||${item.price}"${sel}>${item.name}（NT$${item.price}）</option>`;
+    }
+    html += `</optgroup>`;
+  }
+  html += `</select>`;
+  return html;
+}
+
+function render() {
+  let orderedCount = 0, overCount = 0, grandTotal = 0;
+  const container = document.getElementById('main');
+  let html = '';
+
+  PEOPLE.forEach((person, idx) => {
+    const email = person.email;
+    const total = getTotal(email);
+    const isOver = total > BUDGET;
+    const hasOrders = orders[email].length > 0;
+    if (hasOrders) orderedCount++;
+    if (isOver) overCount++;
+    grandTotal += total;
+
+    const ac = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+    const initials = person.name.replace(/[a-z\s]/g,'').substring(0,2) || person.name.substring(0,2);
+    const isOpen = expanded[email];
+
+    let badgeClass = 'badge-empty', badgeText = '未點餐';
+    if (hasOrders && isOver) { badgeClass = 'badge-over'; badgeText = `NT$${total} ▲超額`; }
+    else if (hasOrders) { badgeClass = 'badge-ok'; badgeText = `NT$${total}`; }
+
+    html += `<div class="person-card" id="card-${idx}">
+      <div class="person-header" onclick="toggle('${email}')">
+        <div class="avatar" style="background:${ac.bg};color:${ac.tc}">${initials}</div>
+        <div class="name-block">
+          <div class="name">${person.name}</div>
+          <div class="email">${email}</div>
+        </div>
+        <span class="badge ${badgeClass}">${badgeText}</span>
+        <span class="chevron${isOpen?' open':''}">▾</span>
+      </div>`;
+
+    if (isOpen) {
+      html += `<div class="order-body">`;
+      orders[email].forEach((row, ri) => {
+        html += `<div class="order-row" data-email="${email}" data-ri="${ri}">
+          <div class="sel-wrap">${buildSelectHTML(row.name)}</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="qty-ctrl">
+              <button class="qty-btn" onclick="changeQty('${email}',${ri},-1)">−</button>
+              <span class="qty-val">${row.qty}</span>
+              <button class="qty-btn" onclick="changeQty('${email}',${ri},1)">+</button>
+            </div>
+            <span class="item-price">NT$${row.price * row.qty}</span>
+          </div>
+          <button class="del-btn" onclick="removeItem('${email}',${ri})" title="刪除">✕</button>
+        </div>`;
+      });
+      html += `<button class="add-btn" onclick="addItem('${email}')">＋ 新增品項</button>`;
+      if (hasOrders) {
+        const diff = BUDGET - total;
+        html += `<div class="subtotal-row">
+          ${isOver ? `<span class="exceed">超出預算 NT$${Math.abs(diff)}</span>` : `<span class="remain">剩餘額度 NT$${diff}</span>`}
+          <span class="label">小計</span>
+          <span class="amount" style="color:${isOver?'var(--red)':'var(--text)'}">NT$${total}</span>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div>`;
+  });
+
+  container.innerHTML = html;
+  document.getElementById('s-ordered').textContent = orderedCount;
+  document.getElementById('s-over').textContent = overCount;
+  document.getElementById('s-total').textContent = `NT$${grandTotal.toLocaleString()}`;
+
+  document.querySelectorAll('.order-row select').forEach(sel => {
+    sel.addEventListener('change', function() {
+      const row = this.closest('.order-row');
+      const email = row.dataset.email;
+      const ri = parseInt(row.dataset.ri);
+      if (this.value) {
+        const [name, price] = this.value.split('|||');
+        orders[email][ri].name = name;
+        orders[email][ri].price = parseInt(price);
+        render();
+      }
+    });
+  });
+}
+
+function toggle(email) { expanded[email] = !expanded[email]; render(); }
+function addItem(email) { orders[email].push({name:'',price:0,qty:1}); expanded[email]=true; render(); }
+function removeItem(email, idx) { orders[email].splice(idx,1); render(); }
+function changeQty(email, idx, d) { orders[email][idx].qty = Math.max(1, orders[email][idx].qty + d); render(); }
+
+function exportData() {
+  let lines = ['TSA 聚餐點餐明細', '='.repeat(40), ''];
+  let grand = 0;
+  PEOPLE.forEach(p => {
+    const total = getTotal(p.email);
+    grand += total;
+    lines.push(`【${p.name}】`);
+    lines.push(`Email: ${p.email}`);
+    if (orders[p.email].length === 0) {
+      lines.push('  尚未點餐');
+    } else {
+      orders[p.email].forEach(r => lines.push(`  • ${r.name} ×${r.qty}  NT$${r.price * r.qty}`));
+      lines.push(`  小計：NT$${total}${total > BUDGET ? `（⚠ 超額 NT$${total-BUDGET}）` : ''}`);
+    }
+    lines.push('');
+  });
+  lines.push('='.repeat(40));
+  lines.push(`預估總金額：NT$${grand.toLocaleString()}`);
+  const blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'TSA聚餐點餐明細.txt';
+  a.click();
+}
+
+render();
+</script>
+</body>
+</html>
