@@ -53,11 +53,11 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
 .set-btn .set-name{font-size:0.9rem;font-weight:700;}
 .set-btn .set-price{font-size:0.82rem;color:var(--yellow-dark);font-weight:700;margin-top:2px;}
 .set-btn .set-desc{font-size:0.7rem;color:var(--muted);margin-top:3px;line-height:1.4;}
-.set-drink-wrap{margin-top:10px;}
-.set-drink-wrap label{font-size:0.78rem;color:var(--muted);display:block;margin-bottom:4px;}
-.set-drink-wrap select{font-family:inherit;font-size:0.85rem;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg);color:var(--text);cursor:pointer;width:100%;}
-.set-drink-wrap select:focus{outline:none;border-color:var(--yellow-dark);}
-.drink-extra{font-size:0.78rem;color:var(--red);margin-top:4px;display:none;}
+.set-extra-wrap{margin-top:10px;}
+.set-extra-wrap label{font-size:0.78rem;color:var(--muted);display:block;margin-bottom:4px;}
+.set-extra-wrap select{font-family:inherit;font-size:0.85rem;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg);color:var(--text);cursor:pointer;width:100%;}
+.set-extra-wrap select:focus{outline:none;border-color:var(--yellow-dark);}
+.extra-note{font-size:0.78rem;color:var(--red);margin-top:4px;display:none;}
 .egg-toggle{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;background:var(--bg);transition:0.15s;width:100%;}
 .egg-toggle:hover{border-color:var(--yellow-dark);background:var(--yellow-light);}
 .egg-toggle.selected{border:2px solid var(--yellow-dark);background:var(--yellow-light);}
@@ -152,13 +152,34 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
           <div class="set-name">C 套餐</div><div class="set-price">+$298</div><div class="set-desc">$360以下鬆餅<br>+ $130 飲品</div>
         </button>
       </div>
-      <div class="set-drink-wrap" id="set-drink-wrap" style="display:none;">
+
+      <!-- A/B 套餐飲品 -->
+      <div class="set-extra-wrap" id="set-drink-wrap" style="display:none;">
         <label>🧋 套餐飲品（含 $130，超出補差額）</label>
         <select id="set-drink-select" onchange="updateTotal()">
           <option value="">— 選擇飲品 —</option>
         </select>
-        <div class="drink-extra" id="drink-extra"></div>
+        <div class="extra-note" id="drink-extra-note"></div>
       </div>
+
+      <!-- C 套餐鬆餅 -->
+      <div class="set-extra-wrap" id="set-cake-wrap" style="display:none;">
+        <label>🥞 套餐鬆餅（$360以下免差額，超出補差額）</label>
+        <select id="set-cake-select" onchange="updateTotal()">
+          <option value="">— 選擇鬆餅 —</option>
+        </select>
+        <div class="extra-note" id="cake-extra-note"></div>
+      </div>
+
+      <!-- C 套餐飲品 -->
+      <div class="set-extra-wrap" id="set-drink-c-wrap" style="display:none;">
+        <label>🧋 套餐飲品（含 $130，超出補差額）</label>
+        <select id="set-drink-c-select" onchange="updateTotal()">
+          <option value="">— 選擇飲品 —</option>
+        </select>
+        <div class="extra-note" id="drink-c-extra-note"></div>
+      </div>
+
       <button class="egg-toggle" id="egg-toggle" onclick="toggleEgg()">
         <input type="checkbox" id="egg-check" onclick="event.stopPropagation()">
         <span class="egg-label">🥚 加購溫泉蛋</span>
@@ -207,6 +228,7 @@ const SCRIPT_URL='https://script.google.com/macros/s/AKfycbytZ_n_9vYWvNkI41_ubSt
 const BUDGET=600;
 const SET_PRICES={none:0,A:98,B:198,C:298};
 const DRINK_CATS=["☕ 咖啡","🍵 經典茶","🧋 果汁／奶茶／氣泡"];
+const PANCAKE_CAT="🥞 雲の鬆餅";
 const MENU={
   "🥗 前菜":[{name:"黃金薯泥起司球",price:130},{name:"唐揚炸雞",price:180},{name:"日式炸豆腐雞塊",price:180},{name:"香酥魚條+薯條雙拼",price:180},{name:"綜合炸薯拼盤",price:220},{name:"酥炸魷魚雙拼",price:250}],
   "🍗 唐揚手羽":[{name:"名古屋醬燒雞翅",price:280},{name:"韓式蜂蜜辣雞翅",price:280},{name:"泰式檸檬雞翅",price:280},{name:"單點 3腿3翅",price:280},{name:"雙拼 2腿2翅（共4腿4翅）",price:360}],
@@ -271,32 +293,54 @@ function buildSelect(sel){
   return h+'</select>';
 }
 
-function buildDrinkSelect(){
+function buildDrinkSelectInto(elId){
   let h='<option value="">— 選擇飲品 —</option>';
   DRINK_CATS.forEach(cat=>{
-    const items=MENU[cat];
-    if(!items)return;
+    const items=MENU[cat];if(!items)return;
     h+=`<optgroup label="${cat}">`;
     items.forEach(i=>{h+=`<option value="${i.name}|||${i.price}">${i.name}（NT$${i.price}）</option>`;});
     h+='</optgroup>';
   });
-  document.getElementById('set-drink-select').innerHTML=h;
+  document.getElementById(elId).innerHTML=h;
 }
 
-function getDrinkExtra(){
-  const sel=document.getElementById('set-drink-select');
+function buildCakeSelect(){
+  const items=MENU[PANCAKE_CAT]||[];
+  let h='<option value="">— 選擇鬆餅 —</option>';
+  items.forEach(i=>{h+=`<option value="${i.name}|||${i.price}">${i.name}（NT$${i.price}）${i.price>360?' ▲補差額':''}</option>`;});
+  document.getElementById('set-cake-select').innerHTML=h;
+}
+
+function getExtraFromSelect(elId,base){
+  const sel=document.getElementById(elId);
   if(!sel||!sel.value)return 0;
   const price=parseInt(sel.value.split('|||')[1])||0;
-  return Math.max(0,price-130);
+  return Math.max(0,price-base);
+}
+
+function showExtraNote(elId,extra,label){
+  const el=document.getElementById(elId);
+  if(extra>0){el.style.display='block';el.textContent=`${label}超出，需補差額 NT$${extra}`;}
+  else{el.style.display='none';}
 }
 
 function selectSet(s){
   selectedSet=s;
   document.querySelectorAll('.set-btn').forEach(b=>b.classList.remove('selected'));
   document.getElementById('set-'+s).classList.add('selected');
-  const needDrink=s!=='none';
-  document.getElementById('set-drink-wrap').style.display=needDrink?'block':'none';
-  if(needDrink)buildDrinkSelect();
+  document.getElementById('set-drink-wrap').style.display='none';
+  document.getElementById('set-cake-wrap').style.display='none';
+  document.getElementById('set-drink-c-wrap').style.display='none';
+  if(s==='A'||s==='B'){
+    document.getElementById('set-drink-wrap').style.display='block';
+    buildDrinkSelectInto('set-drink-select');
+  }
+  if(s==='C'){
+    document.getElementById('set-cake-wrap').style.display='block';
+    document.getElementById('set-drink-c-wrap').style.display='block';
+    buildCakeSelect();
+    buildDrinkSelectInto('set-drink-c-select');
+  }
   updateTotal();
 }
 
@@ -311,8 +355,13 @@ function getTotal(){
   const main=currentItems.reduce((s,r)=>s+r.price*r.qty,0);
   const set=SET_PRICES[selectedSet]||0;
   const egg=wantEgg?30:0;
-  const drinkExtra=selectedSet!=='none'?getDrinkExtra():0;
-  return main+set+egg+drinkExtra;
+  let extra=0;
+  if(selectedSet==='A'||selectedSet==='B') extra+=getExtraFromSelect('set-drink-select',130);
+  if(selectedSet==='C'){
+    extra+=getExtraFromSelect('set-cake-select',360);
+    extra+=getExtraFromSelect('set-drink-c-select',130);
+  }
+  return main+set+egg+extra;
 }
 
 function renderItems(){
@@ -330,10 +379,13 @@ function renderItems(){
 }
 
 function updateTotal(){
-  const drinkExtra=selectedSet!=='none'?getDrinkExtra():0;
-  const extraEl=document.getElementById('drink-extra');
-  if(drinkExtra>0){extraEl.style.display='block';extraEl.textContent=`飲品超出 $130，需補差額 NT$${drinkExtra}`;}
-  else{extraEl.style.display='none';}
+  if(selectedSet==='A'||selectedSet==='B'){
+    showExtraNote('drink-extra-note',getExtraFromSelect('set-drink-select',130),'飲品 $130');
+  }
+  if(selectedSet==='C'){
+    showExtraNote('cake-extra-note',getExtraFromSelect('set-cake-select',360),'鬆餅 $360');
+    showExtraNote('drink-c-extra-note',getExtraFromSelect('set-drink-c-select',130),'飲品 $130');
+  }
   const total=getTotal(),diff=BUDGET-total;
   document.getElementById('subtotal-amount').textContent=`NT$${total}`;
   document.getElementById('subtotal-amount').style.color=total>BUDGET?'var(--red)':'var(--text)';
@@ -358,8 +410,8 @@ function selectPerson(idx){
   document.getElementById('order-note').value='';
   document.getElementById('egg-check').checked=false;
   document.getElementById('egg-toggle').classList.remove('selected');
-  document.getElementById('set-drink-wrap').style.display='none';
-  document.getElementById('drink-extra').style.display='none';
+  ['set-drink-wrap','set-cake-wrap','set-drink-c-wrap'].forEach(id=>document.getElementById(id).style.display='none');
+  ['drink-extra-note','cake-extra-note','drink-c-extra-note'].forEach(id=>document.getElementById(id).style.display='none');
   document.querySelectorAll('.set-btn').forEach(b=>b.classList.remove('selected'));
   document.getElementById('set-none').classList.add('selected');
   showScreen('order');
@@ -374,11 +426,27 @@ async function submitOrder(){
   const allItems=[...validItems];
   if(selectedSet!=='none'){
     allItems.push({name:`${selectedSet}套餐`,qty:1,price:SET_PRICES[selectedSet]});
-    const drinkSel=document.getElementById('set-drink-select');
-    if(drinkSel&&drinkSel.value){
-      const[dname,dprice]=drinkSel.value.split('|||');
-      const extra=Math.max(0,parseInt(dprice)-130);
-      allItems.push({name:`套餐飲品：${dname}`,qty:1,price:extra});
+    if(selectedSet==='A'||selectedSet==='B'){
+      const sel=document.getElementById('set-drink-select');
+      if(sel&&sel.value){
+        const[dn,dp]=sel.value.split('|||');
+        const extra=Math.max(0,parseInt(dp)-130);
+        allItems.push({name:`套餐飲品：${dn}`,qty:1,price:extra});
+      }
+    }
+    if(selectedSet==='C'){
+      const csel=document.getElementById('set-cake-select');
+      if(csel&&csel.value){
+        const[cn,cp]=csel.value.split('|||');
+        const extra=Math.max(0,parseInt(cp)-360);
+        allItems.push({name:`套餐鬆餅：${cn}`,qty:1,price:extra});
+      }
+      const dsel=document.getElementById('set-drink-c-select');
+      if(dsel&&dsel.value){
+        const[dn,dp]=dsel.value.split('|||');
+        const extra=Math.max(0,parseInt(dp)-130);
+        allItems.push({name:`套餐飲品：${dn}`,qty:1,price:extra});
+      }
     }
   }
   if(wantEgg)allItems.push({name:'溫泉蛋',qty:1,price:30});
