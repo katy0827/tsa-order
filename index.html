@@ -9,12 +9,12 @@
 :root{--yellow:#F5C842;--yellow-light:#FFF8DC;--yellow-dark:#D4A017;--bg:#FAFAF7;--card:#FFFFFF;--text:#1A1A1A;--muted:#777;--border:#E8E4D9;--green:#2E7D4F;--green-bg:#EAF5EE;--red:#C0392B;--red-bg:#FDEDEC;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-header{background:var(--yellow);padding:1.5rem 1.5rem 1.4rem;text-align:center;border-bottom:3px solid var(--yellow-dark);}
+header{background:var(--yellow);padding:1.5rem 1.5rem 1.2rem;text-align:center;border-bottom:3px solid var(--yellow-dark);}
 header h1{font-size:1.6rem;font-weight:700;color:#1A1A1A;}
 header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
 .header-bottom{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:0.8rem;flex-wrap:wrap;}
 .budget-chip{background:#fff;border:2px solid var(--yellow-dark);border-radius:99px;padding:6px 20px;font-size:1.05rem;font-weight:700;color:var(--yellow-dark);}
-.budget-note{font-size:0.75rem;color:#7A5500;background:rgba(255,255,255,0.5);border-radius:99px;padding:4px 10px;}
+.katy-note{margin-top:6px;font-size:0.78rem;color:#7A5500;font-weight:500;}
 .nav-bar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1.5px solid var(--border);display:flex;z-index:100;}
 .nav-btn{flex:1;padding:12px 8px 10px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:0.72rem;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;transition:0.15s;}
 .nav-btn.active{color:var(--yellow-dark);font-weight:700;}
@@ -109,9 +109,9 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
   <h1>🍽 TSA 聚餐點餐表</h1>
   <p>點選你的名字開始點餐</p>
   <div class="header-bottom">
-    <span class="budget-chip">每人額度 NT$600</span>
-    <span class="budget-note">超額請交給 Katy 💛</span>
+    <span class="budget-chip">每人額度 NT$600（含10%服務費）</span>
   </div>
+  <div class="katy-note">差額的款項請交給 Katy 💛</div>
 </header>
 
 <div id="screen-home" class="screen active">
@@ -128,7 +128,7 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
       <div class="order-avatar" id="order-avatar"></div>
       <div>
         <div class="order-name" id="order-name"></div>
-        <div style="font-size:0.82rem;color:var(--muted);margin-top:2px;">每人額度 NT$600｜超額請交給 Katy</div>
+        <div style="font-size:0.82rem;color:var(--muted);margin-top:2px;">餐點上限 NT$545（加10%服務費共$600）</div>
       </div>
     </div>
     <div class="order-card">
@@ -152,34 +152,21 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
           <div class="set-name">C 套餐</div><div class="set-price">+$298</div><div class="set-desc">$360以下鬆餅<br>+ $130 飲品</div>
         </button>
       </div>
-
-      <!-- A/B 套餐飲品 -->
       <div class="set-extra-wrap" id="set-drink-wrap" style="display:none;">
         <label>🧋 套餐飲品（含 $130，超出補差額）</label>
-        <select id="set-drink-select" onchange="updateTotal()">
-          <option value="">— 選擇飲品 —</option>
-        </select>
+        <select id="set-drink-select" onchange="updateTotal()"><option value="">— 選擇飲品 —</option></select>
         <div class="extra-note" id="drink-extra-note"></div>
       </div>
-
-      <!-- C 套餐鬆餅 -->
       <div class="set-extra-wrap" id="set-cake-wrap" style="display:none;">
         <label>🥞 套餐鬆餅（$360以下免差額，超出補差額）</label>
-        <select id="set-cake-select" onchange="updateTotal()">
-          <option value="">— 選擇鬆餅 —</option>
-        </select>
+        <select id="set-cake-select" onchange="updateTotal()"><option value="">— 選擇鬆餅 —</option></select>
         <div class="extra-note" id="cake-extra-note"></div>
       </div>
-
-      <!-- C 套餐飲品 -->
       <div class="set-extra-wrap" id="set-drink-c-wrap" style="display:none;">
         <label>🧋 套餐飲品（含 $130，超出補差額）</label>
-        <select id="set-drink-c-select" onchange="updateTotal()">
-          <option value="">— 選擇飲品 —</option>
-        </select>
+        <select id="set-drink-c-select" onchange="updateTotal()"><option value="">— 選擇飲品 —</option></select>
         <div class="extra-note" id="drink-c-extra-note"></div>
       </div>
-
       <button class="egg-toggle" id="egg-toggle" onclick="toggleEgg()">
         <input type="checkbox" id="egg-check" onclick="event.stopPropagation()">
         <span class="egg-label">🥚 加購溫泉蛋</span>
@@ -194,7 +181,7 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
     </div>
     <div class="subtotal-bar">
       <div>
-        <div style="font-size:0.85rem;color:var(--muted);">小計</div>
+        <div style="font-size:0.85rem;color:var(--muted);">小計（未含服務費）</div>
         <div id="budget-remain"></div>
       </div>
       <div class="subtotal-amount" id="subtotal-amount">NT$0</div>
@@ -225,7 +212,7 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
 
 <script>
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbytZ_n_9vYWvNkI41_ubStODU-re_b1X_Baag-E7Kz_vE44do15hJLPQh1m-TI1XsToZw/exec';
-const BUDGET=600;
+const BUDGET=545; // 545 x 1.1 = 599.5 ≈ $600
 const SET_PRICES={none:0,A:98,B:198,C:298};
 const DRINK_CATS=["☕ 咖啡","🍵 經典茶","🧋 果汁／奶茶／氣泡"];
 const PANCAKE_CAT="🥞 雲の鬆餅";
@@ -320,7 +307,7 @@ function getExtraFromSelect(elId,base){
 
 function showExtraNote(elId,extra,label){
   const el=document.getElementById(elId);
-  if(extra>0){el.style.display='block';el.textContent=`${label}超出，需補差額 NT$${extra}`;}
+  if(extra>0){el.style.display='block';el.textContent=`${label}超出，需補差額 NT$${extra}，請交給 Katy`;}
   else{el.style.display='none';}
 }
 
@@ -356,7 +343,7 @@ function getTotal(){
   const set=SET_PRICES[selectedSet]||0;
   const egg=wantEgg?30:0;
   let extra=0;
-  if(selectedSet==='A'||selectedSet==='B') extra+=getExtraFromSelect('set-drink-select',130);
+  if(selectedSet==='A'||selectedSet==='B')extra+=getExtraFromSelect('set-drink-select',130);
   if(selectedSet==='C'){
     extra+=getExtraFromSelect('set-cake-select',360);
     extra+=getExtraFromSelect('set-drink-c-select',130);
@@ -379,20 +366,20 @@ function renderItems(){
 }
 
 function updateTotal(){
-  if(selectedSet==='A'||selectedSet==='B'){
-    showExtraNote('drink-extra-note',getExtraFromSelect('set-drink-select',130),'飲品 $130');
-  }
+  if(selectedSet==='A'||selectedSet==='B')showExtraNote('drink-extra-note',getExtraFromSelect('set-drink-select',130),'飲品 $130');
   if(selectedSet==='C'){
     showExtraNote('cake-extra-note',getExtraFromSelect('set-cake-select',360),'鬆餅 $360');
     showExtraNote('drink-c-extra-note',getExtraFromSelect('set-drink-c-select',130),'飲品 $130');
   }
   const total=getTotal(),diff=BUDGET-total;
-  document.getElementById('subtotal-amount').textContent=`NT$${total}`;
+  const withTax=Math.round(total*1.1);
+  document.getElementById('subtotal-amount').textContent=`NT$${total}（含服務費約$${withTax}）`;
   document.getElementById('subtotal-amount').style.color=total>BUDGET?'var(--red)':'var(--text)';
+  document.getElementById('subtotal-amount').style.fontSize=total>BUDGET?'0.95rem':'1.2rem';
   const el=document.getElementById('budget-remain');
   if(total===0)el.innerHTML='';
-  else if(diff>=0)el.innerHTML=`<span class="remain">剩餘額度 NT$${diff}</span>`;
-  else el.innerHTML=`<span class="exceed">超出預算 NT$${Math.abs(diff)}，請交給 Katy</span>`;
+  else if(diff>=0)el.innerHTML=`<span class="remain">餐點剩餘額度 NT$${diff}</span>`;
+  else el.innerHTML=`<span class="exceed">超出 NT$${Math.abs(diff)}，差額請交給 Katy</span>`;
   document.getElementById('submit-btn').disabled=currentItems.length===0||currentItems.some(r=>!r.name);
 }
 
@@ -428,25 +415,13 @@ async function submitOrder(){
     allItems.push({name:`${selectedSet}套餐`,qty:1,price:SET_PRICES[selectedSet]});
     if(selectedSet==='A'||selectedSet==='B'){
       const sel=document.getElementById('set-drink-select');
-      if(sel&&sel.value){
-        const[dn,dp]=sel.value.split('|||');
-        const extra=Math.max(0,parseInt(dp)-130);
-        allItems.push({name:`套餐飲品：${dn}`,qty:1,price:extra});
-      }
+      if(sel&&sel.value){const[dn,dp]=sel.value.split('|||');allItems.push({name:`套餐飲品：${dn}`,qty:1,price:Math.max(0,parseInt(dp)-130)});}
     }
     if(selectedSet==='C'){
       const csel=document.getElementById('set-cake-select');
-      if(csel&&csel.value){
-        const[cn,cp]=csel.value.split('|||');
-        const extra=Math.max(0,parseInt(cp)-360);
-        allItems.push({name:`套餐鬆餅：${cn}`,qty:1,price:extra});
-      }
+      if(csel&&csel.value){const[cn,cp]=csel.value.split('|||');allItems.push({name:`套餐鬆餅：${cn}`,qty:1,price:Math.max(0,parseInt(cp)-360)});}
       const dsel=document.getElementById('set-drink-c-select');
-      if(dsel&&dsel.value){
-        const[dn,dp]=dsel.value.split('|||');
-        const extra=Math.max(0,parseInt(dp)-130);
-        allItems.push({name:`套餐飲品：${dn}`,qty:1,price:extra});
-      }
+      if(dsel&&dsel.value){const[dn,dp]=dsel.value.split('|||');allItems.push({name:`套餐飲品：${dn}`,qty:1,price:Math.max(0,parseInt(dp)-130)});}
     }
   }
   if(wantEgg)allItems.push({name:'溫泉蛋',qty:1,price:30});
@@ -482,9 +457,10 @@ function renderOrders(data){
   });
   const orderedCount=Object.keys(grouped).length;
   const grandTotal=Object.values(grouped).reduce((s,p)=>s+p.items.reduce((ss,i)=>ss+i.subtotal,0),0);
+  const grandWithTax=Math.round(grandTotal*1.1);
   document.getElementById('stat-ordered').textContent=orderedCount;
   document.getElementById('stat-pending').textContent=PEOPLE.length-orderedCount;
-  document.getElementById('stat-total').textContent=`$${grandTotal.toLocaleString()}`;
+  document.getElementById('stat-total').textContent=`$${grandWithTax.toLocaleString()}`;
   if(orderedCount===0){
     document.getElementById('orders-list').innerHTML='<div class="no-orders">目前還沒有人點餐</div>';
     document.getElementById('summary-section').innerHTML='';return;
@@ -495,8 +471,9 @@ function renderOrders(data){
     const c=COLORS[i%COLORS.length];
     if(g){
       const total=g.items.reduce((s,it)=>s+it.subtotal,0);
+      const withTax=Math.round(total*1.1);
       const isOver=total>BUDGET,isExp=expandedOrders.has(p.email);
-      h+=`<div class="order-entry"><div class="order-entry-header" onclick="toggleOrder('${p.email}')"><div class="entry-avatar" style="background:${c.bg};color:${c.tc}">${getInitials(p.name)}</div><span class="entry-name">${p.name}</span><span class="badge-done">已點餐</span><span class="entry-total${isOver?' over':''}" style="margin-left:8px;font-size:0.85rem;font-weight:700">NT$${total}${isOver?' ▲':''}</span><span style="margin-left:6px;color:var(--muted);font-size:0.8rem">${isExp?'▲':'▼'}</span></div>`;
+      h+=`<div class="order-entry"><div class="order-entry-header" onclick="toggleOrder('${p.email}')"><div class="entry-avatar" style="background:${c.bg};color:${c.tc}">${getInitials(p.name)}</div><span class="entry-name">${p.name}</span><span class="badge-done">已點餐</span><span class="entry-total${isOver?' over':''}" style="margin-left:8px;font-size:0.82rem;font-weight:700">$${total}（含服務費$${withTax}）${isOver?' ▲':''}</span><span style="margin-left:6px;color:var(--muted);font-size:0.8rem">${isExp?'▲':'▼'}</span></div>`;
       if(isExp){h+=`<div class="entry-body">`;g.items.forEach(it=>{h+=`<div class="entry-row"><span>${it.name} ×${it.qty}</span><span>NT$${it.subtotal}</span></div>`;});if(g.note)h+=`<div class="entry-note">📝 ${g.note}</div>`;h+=`</div>`;}
       h+=`</div>`;
     }else{
@@ -513,7 +490,8 @@ function renderOrders(data){
   const sorted=Object.entries(itemMap).sort((a,b)=>b[1].qty-a[1].qty);
   let sh=`<div class="summary-section"><h3>🧾 餐點彙總（供餐廳參考）</h3>`;
   sorted.forEach(([name,info])=>{sh+=`<div class="summary-item-row"><span>${name}</span><div style="display:flex;align-items:center;gap:8px"><span class="summary-item-qty">×${info.qty}</span><span style="font-size:0.85rem;color:var(--muted)">NT$${info.price*info.qty}</span></div></div>`;});
-  sh+=`<div class="summary-grand"><span>合計</span><span>NT$${grandTotal.toLocaleString()}</span></div></div>`;
+  sh+=`<div class="summary-grand"><span>小計（未含服務費）</span><span>NT$${grandTotal.toLocaleString()}</span></div>`;
+  sh+=`<div class="summary-grand" style="margin-top:6px;padding-top:6px;border-top:none;color:var(--yellow-dark)"><span>含10%服務費合計</span><span>NT$${grandWithTax.toLocaleString()}</span></div></div>`;
   document.getElementById('summary-section').innerHTML=sh;
 }
 
