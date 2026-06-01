@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TSA 聚餐點餐表</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --yellow: #F5C842;
+  --yellow-light: #FFF8DC;
+  --yellow-dark: #D4A017;
+  --bg: #FAFAF7;
+  --card: #FFFFFF;
+  --text: #1A1A1A;
+  --muted: #777;
+  --border: #E8E4D9;
+  --green: #2E7D4F;
+  --green-bg: #EAF5EE;
+  --red: #C0392B;
+  --red-bg: #FDEDEC;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+header { background: var(--yellow); padding: 2rem 1.5rem 1.5rem; text-align: center; border-bottom: 3px solid var(--yellow-dark); }
+header h1 { font-size: 1.8rem; font-weight: 700; color: #1A1A1A; letter-spacing: 0.05em; }
+header p { margin-top: 0.4rem; font-size: 0.9rem; color: #555; }
+.budget-chip { display: inline-block; margin-top: 0.75rem; background: #fff; border: 2px solid var(--yellow-dark); border-radius: 99px; padding: 4px 16px; font-size: 0.85rem; font-weight: 700; color: var(--yellow-dark); }
+#screen-select { max-width: 600px; margin: 2rem auto; padding: 0 1.5rem; }
+#screen-select h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; text-align: center; }
+.people-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.people-btn { background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; cursor: pointer; text-align: left; font-family: inherit; transition: 0.15s; display: flex; align-items: center; gap: 10px; width: 100%; }
+.people-btn:hover { border-color: var(--yellow-dark); background: var(--yellow-light); }
+.people-btn.done { border-color: var(--green); background: var(--green-bg); }
+.p-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.p-name { font-size: 0.85rem; font-weight: 700; }
+.p-status { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+.p-status.ok { color: var(--green); }
+#screen-order { display: none; max-width: 680px; margin: 0 auto; padding: 1.5rem; }
+.back-btn { background: none; border: none; cursor: pointer; font-family: inherit; font-size: 0.85rem; color: var(--muted); padding: 0 0 1rem; display: flex; align-items: center; gap: 4px; }
+.back-btn:hover { color: var(--text); }
+.order-header { background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 1rem; display: flex; align-items: center; gap: 12px; }
+.order-avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+.order-name { font-size: 1.1rem; font-weight: 700; }
+.order-budget { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+.order-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 10px; }
+.order-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; margin-bottom: 10px; }
+.order-row select { font-family: inherit; font-size: 0.85rem; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 10px; background: var(--bg); color: var(--text); cursor: pointer; width: 100%; }
+.order-row select:focus { outline: none; border-color: var(--yellow-dark); }
+.qty-ctrl { display: flex; align-items: center; gap: 6px; }
+.qty-btn { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--bg); cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; font-family: inherit; transition: 0.15s; }
+.qty-btn:hover { background: var(--yellow-light); border-color: var(--yellow-dark); }
+.qty-val { font-size: 0.9rem; font-weight: 700; min-width: 22px; text-align: center; }
+.item-price { font-size: 0.85rem; color: var(--muted); min-width: 60px; text-align: right; }
+.del-btn { width: 30px; height: 30px; border-radius: 50%; border: none; background: none; cursor: pointer; color: #bbb; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
+.del-btn:hover { background: var(--red-bg); color: var(--red); }
+.add-btn { margin-top: 12px; background: none; border: 1.5px dashed var(--border); border-radius: 8px; padding: 8px 14px; font-family: inherit; font-size: 0.82rem; color: var(--muted); cursor: pointer; width: 100%; transition: 0.15s; }
+.add-btn:hover { border-color: var(--yellow-dark); color: var(--yellow-dark); background: var(--yellow-light); }
+.subtotal-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; margin-bottom: 10px; }
+.subtotal-amount { font-size: 1.2rem; font-weight: 700; }
+.remain { color: var(--green); font-size: 0.78rem; margin-top: 2px; }
+.exceed { color: var(--red); font-size: 0.78rem; margin-top: 2px; }
+.submit-btn { width: 100%; padding: 14px; background: var(--yellow); border: 2px solid var(--yellow-dark); border-radius: 12px; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; transition: 0.15s; color: #1A1A1A; }
+.submit-btn:hover { background: var(--yellow-dark); color: #fff; }
+.submit-btn:disabled { background: #ddd; border-color: #ccc; color: #999; cursor: not-allowed; }
+.toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: #1A1A1A; color: #fff; padding: 10px 24px; border-radius: 99px; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🍽 TSA 聚餐點餐表</h1>
+  <p>點選你的名字開始點餐</p>
+  <span class="budget-chip">每人額度 NT$600</span>
+</header>
+
+<div id="screen-select">
+  <h2 style="margin-top:1.5rem">請選擇你的名字</h2>
+  <div class="people-grid" id="people-grid"></div>
+</div>
+
+<div id="screen-order">
+  <button class="back-btn" onclick="goBack()">← 返回名單</button>
+  <div class="order-header">
+    <div class="order-avatar" id="order-avatar"></div>
+    <div>
+      <div class="order-name" id="order-name"></div>
+      <div class="order-budget">每人額度 NT$600</div>
+    </div>
+  </div>
+  <div class="order-card" id="order-items"></div>
+  <div class="subtotal-bar">
+    <div>
+      <div style="font-size:0.85rem;color:var(--muted)">小計</div>
+      <div id="budget-remain"></div>
+    </div>
+    <div class="subtotal-amount" id="subtotal-amount">NT$0</div>
+  </div>
+  <button class="submit-btn" id="submit-btn" onclick="submitOrder()">✅ 確認送出點餐</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyl5dK4OtM8m8247Zy9IYxAHDq5dZl30kBvnZtk7LwR8o-VkI67BvuVTxSGdsKl018MdA/exec';
+const BUDGET = 600;
+const MENU = {
+  "🥗 前菜":[{name:"黃金薯泥起司球",price:130},{name:"唐揚炸雞",price:180},{name:"日式炸豆腐雞塊",price:180},{name:"香酥魚條+薯條雙拼",price:180},{name:"綜合炸薯拼盤",price:220},{name:"酥炸魷魚雙拼",price:250}],
+  "🍗 唐揚手羽":[{name:"名古屋醬燒雞翅",price:280},{name:"韓式蜂蜜辣雞翅",price:280},{name:"泰式檸檬雞翅",price:280},{name:"單點 3腿3翅",price:280},{name:"雙拼 2腿2翅（共4腿4翅）",price:360}],
+  "🥬 沙拉":[{name:"彩虹雞肉沙拉",price:320},{name:"彩虹骰子蝦沙拉",price:420},{name:"彩虹栗子沙拉",price:300}],
+  "🍱 波奇碗":[{name:"輕蔬野菇波奇碗",price:300},{name:"嫩煎雞肉酪梨波奇碗",price:320},{name:"鮮鮭魚酪梨波奇碗",price:350}],
+  "🍛 咖哩飯":[{name:"日式松阪豬咖哩飯",price:330},{name:"嫩煎牛咖哩飯",price:360},{name:"唐揚炸雞咖哩飯",price:310}],
+  "🍲 和風雜炊":[{name:"味噌鮭玉子雜炊",price:310},{name:"綜合海鮮鮭魚雜炊",price:330}],
+  "🍜 湯丼飯":[{name:"香煎鱸魚蕃茄汁湯丼飯",price:390},{name:"鮮蝦勁野菇湯丼飯",price:360},{name:"黑鑽松露海鮮湯丼飯",price:400},{name:"香煎嫩栗子湯丼飯",price:380}],
+  "🥩 漢堡排":[{name:"經典蘿蔔泥漢堡排",price:360},{name:"炙燒明太子漢堡排",price:390}],
+  "🍔 漢堡":[{name:"橙香豬肉元氣堡",price:300},{name:"雙層和牛起司堡",price:340},{name:"未來肉起司蔬菜堡",price:360},{name:"加起司漢布",price:80}],
+  "🍝 義大利麵":[{name:"經典蕃茄新豬肉醬貝殼麵",price:310},{name:"羅勒青醬炸雞貝殼麵",price:330},{name:"煙燻魚明太子海膽醬",price:370},{name:"奶油松露野菇貝殼麵",price:350},{name:"南洋酸辣海鮮義大利麵",price:420},{name:"日式味噌培根義大利麵",price:320}],
+  "🥞 雲の鬆餅":[{name:"經典蜂蜜冰淇淋鬆餅",price:300},{name:"莓果塔冰淇淋鬆餅",price:370},{name:"檸檬冰淇淋鬆餅",price:320},{name:"蒙布朗冰淇淋鬆餅",price:370},{name:"松露巧克力冰淇淋鬆餅",price:390},{name:"芭娜娜蘋果冰淇淋鬆餅",price:380},{name:"泰奶椰香冰淇淋鬆餅",price:390}],
+  "☕ 咖啡":[{name:"美式義大利",price:130},{name:"西西里檸檬",price:160},{name:"經典拿鐵",price:160},{name:"岩鹽拿鐵",price:170}],
+  "🍵 經典茶":[{name:"格雷伯爵茶",price:130},{name:"玄米烏龍茶",price:130},{name:"熟果烏龍茶",price:130},{name:"蕎麥鮮綠茶",price:140},{name:"香橙烏龍冰茶",price:170},{name:"天堂烏冰茶",price:170},{name:"綜合水果茶",price:180},{name:"黃金柑橘水果茶",price:150},{name:"洛神野莓花果茶",price:150},{name:"香蘋杏桃花果茶",price:150},{name:"香柚檸檬草花果茶",price:150}],
+  "🧋 果汁／奶茶／氣泡":[{name:"檸檬鳳梨汁",price:200},{name:"綜合果汁",price:200},{name:"純厚奶茶",price:150},{name:"黑糖伯爵厚奶茶",price:150},{name:"雲朵奶蓋泰式奶茶",price:180},{name:"雲朵牛奶糖奶茶",price:200},{name:"熱帶森林輕氣泡",price:180},{name:"蜜桃荔枝輕氣泡",price:180},{name:"青蘋果樂園莫西多",price:200}],
+};
+const PEOPLE = [
+  {name:"Aida 林俐廷",email:"aidalin@tsagroup.com.tw"},
+  {name:"Amanda 黃如華",email:"amandahuang@tsagroup.com.tw"},
+  {name:"Barney 劉怡伶",email:"barney@tsagroup.com.tw"},
+  {name:"Chris 陳家翔",email:"chrischen@tsagroup.com.tw"},
+  {name:"Dori 陳姿璇",email:"dori@tsagroup.com.tw"},
+  {name:"Gwen 陳冠孜",email:"gwenchen@tsagroup.com.tw"},
+  {name:"Jacob 呂世評",email:"jacob@tsagroup.com.tw"},
+  {name:"Jessica 李潔慧",email:"jessica@tsagroup.com.tw"},
+  {name:"Jimmy 王鈞逸",email:"jimmywang@tsagroup.com.tw"},
+  {name:"John 黃文傳",email:"johnhuang@tsagroup.com.tw"},
+  {name:"TSA Marketing",email:"marketing@tsagroup.com.tw"},
+  {name:"Molly 何舒維",email:"mollyho@tsagroup.com.tw"},
+  {name:"Penny 李品嫺",email:"pennyli@tsagroup.com.tw"},
+  {name:"Sandy 鄒馨瑩",email:"sandy@tsagroup.com.tw"},
+  {name:"Senou 歐倩妤",email:"senou@tsagroup.com.tw"},
+  {name:"Stefanie 邱湘芬",email:"stefanie@tsagroup.com.tw"},
+  {name:"Tiana 李亭儀",email:"tianali@tsagroup.com.tw"},
+  {name:"Tim 徐唯庭",email:"timhsu@tsagroup.com.tw"},
+  {name:"Will 吳政哲",email:"willwu@tsagroup.com.tw"},
+  {name:"Zola 曾子柔",email:"zolatseng@tsagroup.com.tw"},
+];
+const COLORS=[{bg:"#FFF0CC",tc:"#8A6000"},{bg:"#E8F4FF",tc:"#1A5C8A"},{bg:"#F0FFF4",tc:"#1A6B3A"},{bg:"#FFF0F5",tc:"#8A1A4A"},{bg:"#F5F0FF",tc:"#5A1A8A"},{bg:"#FFF5F0",tc:"#8A3A1A"},{bg:"#F0FFF9",tc:"#1A6B5A"}];
+let currentPerson=null, currentItems=[], submittedEmails=new Set();
+
+function buildSelect(sel){
+  let h='<select><option value="">— 選擇品項 —</option>';
+  for(const[cat,items]of Object.entries(MENU)){
+    h+=`<optgroup label="${cat}">`;
+    for(const item of items){h+=`<option value="${item.name}|||${item.price}"${item.name===sel?' selected':''}>${item.name}（NT$${item.price}）</option>`;}
+    h+='</optgroup>';
+  }
+  return h+'</select>';
+}
+function getTotal(){return currentItems.reduce((s,r)=>s+r.price*r.qty,0);}
+function renderItems(){
+  let h='';
+  currentItems.forEach((row,i)=>{
+    h+=`<div class="order-row" data-i="${i}"><div>${buildSelect(row.name)}</div><div style="display:flex;align-items:center;gap:6px"><div class="qty-ctrl"><button class="qty-btn" onclick="changeQty(${i},-1)">−</button><span class="qty-val">${row.qty}</span><button class="qty-btn" onclick="changeQty(${i},1)">+</button></div><span class="item-price">NT$${row.price*row.qty}</span></div><button class="del-btn" onclick="delItem(${i})">✕</button></div>`;
+  });
+  h+=`<button class="add-btn" onclick="addItem()">＋ 新增品項</button>`;
+  document.getElementById('order-items').innerHTML=h;
+  document.querySelectorAll('#order-items select').forEach((sel,i)=>{
+    sel.addEventListener('change',function(){
+      if(this.value){const[n,p]=this.value.split('|||');currentItems[i].name=n;currentItems[i].price=parseInt(p);renderItems();}
+    });
+  });
+  updateTotal();
+}
+function updateTotal(){
+  const total=getTotal(),diff=BUDGET-total;
+  document.getElementById('subtotal-amount').textContent=`NT$${total}`;
+  document.getElementById('subtotal-amount').style.color=total>BUDGET?'var(--red)':'var(--text)';
+  const el=document.getElementById('budget-remain');
+  if(total===0)el.innerHTML='';
+  else if(diff>=0)el.innerHTML=`<span class="remain">剩餘額度 NT$${diff}</span>`;
+  else el.innerHTML=`<span class="exceed">超出預算 NT$${Math.abs(diff)}</span>`;
+  document.getElementById('submit-btn').disabled=currentItems.length===0||currentItems.some(r=>!r.name);
+}
+function addItem(){currentItems.push({name:'',price:0,qty:1});renderItems();}
+function delItem(i){currentItems.splice(i,1);renderItems();}
+function changeQty(i,d){currentItems[i].qty=Math.max(1,currentItems[i].qty+d);renderItems();}
+function selectPerson(idx){
+  currentPerson=PEOPLE[idx];currentItems=[];
+  const c=COLORS[idx%COLORS.length];
+  const initials=currentPerson.name.replace(/[a-z\s]/g,'').substring(0,2)||currentPerson.name.substring(0,2);
+  document.getElementById('order-avatar').textContent=initials;
+  document.getElementById('order-avatar').style.background=c.bg;
+  document.getElementById('order-avatar').style.color=c.tc;
+  document.getElementById('order-name').textContent=currentPerson.name;
+  document.getElementById('screen-select').style.display='none';
+  document.getElementById('screen-order').style.display='block';
+  addItem();
+}
+function goBack(){
+  document.getElementById('screen-select').style.display='block';
+  document.getElementById('screen-order').style.display='none';
+  currentPerson=null;currentItems=[];
+}
+async function submitOrder(){
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true;btn.textContent='送出中...';
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:currentPerson.name,email:currentPerson.email,items:currentItems.filter(r=>r.name)})});
+    submittedEmails.add(currentPerson.email);
+    showToast(`✅ ${currentPerson.name} 點餐成功！`);
+    renderPeople();
+    setTimeout(()=>goBack(),1500);
+  }catch(e){
+    showToast('❌ 送出失敗，請重試');
+    btn.disabled=false;btn.textContent='✅ 確認送出點餐';
+  }
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function renderPeople(){
+  let h='';
+  PEOPLE.forEach((p,i)=>{
+    const c=COLORS[i%COLORS.length];
+    const initials=p.name.replace(/[a-z\s]/g,'').substring(0,2)||p.name.substring(0,2);
+    const done=submittedEmails.has(p.email);
+    h+=`<button class="people-btn${done?' done':''}" onclick="selectPerson(${i})"><div class="p-avatar" style="background:${c.bg};color:${c.tc}">${initials}</div><div><div class="p-name">${p.name}</div><div class="p-status${done?' ok':''}">${done?'✓ 已點餐':'未點餐'}</div></div></button>`;
+  });
+  document.getElementById('people-grid').innerHTML=h;
+}
+renderPeople();
+</script>
+</body>
+</html>
