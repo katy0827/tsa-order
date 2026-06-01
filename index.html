@@ -56,6 +56,10 @@ header p { margin-top: 0.4rem; font-size: 0.9rem; color: #555; }
 .del-btn:hover { background: var(--red-bg); color: var(--red); }
 .add-btn { margin-top: 12px; background: none; border: 1.5px dashed var(--border); border-radius: 8px; padding: 8px 14px; font-family: inherit; font-size: 0.82rem; color: var(--muted); cursor: pointer; width: 100%; transition: 0.15s; }
 .add-btn:hover { border-color: var(--yellow-dark); color: var(--yellow-dark); background: var(--yellow-light); }
+.note-wrap { margin-top: 10px; }
+.note-wrap textarea { width: 100%; font-family: inherit; font-size: 0.85rem; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 10px; background: var(--bg); color: var(--text); resize: vertical; min-height: 60px; }
+.note-wrap textarea:focus { outline: none; border-color: var(--yellow-dark); }
+.note-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; }
 .subtotal-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; margin-bottom: 10px; }
 .subtotal-amount { font-size: 1.2rem; font-weight: 700; }
 .remain { color: var(--green); font-size: 0.78rem; margin-top: 2px; }
@@ -88,7 +92,13 @@ header p { margin-top: 0.4rem; font-size: 0.9rem; color: #555; }
       <div class="order-budget">每人額度 NT$600</div>
     </div>
   </div>
-  <div class="order-card" id="order-items"></div>
+  <div class="order-card">
+    <div id="order-items"></div>
+    <div class="note-wrap">
+      <div class="note-label">📝 備註（過敏、特殊需求等）</div>
+      <textarea id="order-note" placeholder="例如：不要香菜、對海鮮過敏..."></textarea>
+    </div>
+  </div>
   <div class="subtotal-bar">
     <div>
       <div style="font-size:0.85rem;color:var(--muted)">小計</div>
@@ -131,7 +141,7 @@ const PEOPLE = [
   {name:"Jessica 李潔慧",email:"jessica@tsagroup.com.tw"},
   {name:"Jimmy 王鈞逸",email:"jimmywang@tsagroup.com.tw"},
   {name:"John 黃文傳",email:"johnhuang@tsagroup.com.tw"},
-  {name:"TSA Marketing",email:"marketing@tsagroup.com.tw"},
+  {name:"Katy 林仕涵",email:"katy@tsagroup.com.tw"},
   {name:"Molly 何舒維",email:"mollyho@tsagroup.com.tw"},
   {name:"Penny 李品嫺",email:"pennyli@tsagroup.com.tw"},
   {name:"Sandy 鄒馨瑩",email:"sandy@tsagroup.com.tw"},
@@ -141,9 +151,10 @@ const PEOPLE = [
   {name:"Tim 徐唯庭",email:"timhsu@tsagroup.com.tw"},
   {name:"Will 吳政哲",email:"willwu@tsagroup.com.tw"},
   {name:"Zola 曾子柔",email:"zolatseng@tsagroup.com.tw"},
+  {name:"Zong 宗",email:"marketing@tsagroup.com.tw"},
 ];
 const COLORS=[{bg:"#FFF0CC",tc:"#8A6000"},{bg:"#E8F4FF",tc:"#1A5C8A"},{bg:"#F0FFF4",tc:"#1A6B3A"},{bg:"#FFF0F5",tc:"#8A1A4A"},{bg:"#F5F0FF",tc:"#5A1A8A"},{bg:"#FFF5F0",tc:"#8A3A1A"},{bg:"#F0FFF9",tc:"#1A6B5A"}];
-let currentPerson=null, currentItems=[], submittedEmails=new Set();
+let currentPerson=null,currentItems=[],submittedEmails=new Set();
 
 function buildSelect(sel){
   let h='<select><option value="">— 選擇品項 —</option>';
@@ -190,6 +201,7 @@ function selectPerson(idx){
   document.getElementById('order-avatar').style.background=c.bg;
   document.getElementById('order-avatar').style.color=c.tc;
   document.getElementById('order-name').textContent=currentPerson.name;
+  document.getElementById('order-note').value='';
   document.getElementById('screen-select').style.display='none';
   document.getElementById('screen-order').style.display='block';
   addItem();
@@ -201,9 +213,10 @@ function goBack(){
 }
 async function submitOrder(){
   const btn=document.getElementById('submit-btn');
+  const note=document.getElementById('order-note').value.trim();
   btn.disabled=true;btn.textContent='送出中...';
   try{
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:currentPerson.name,email:currentPerson.email,items:currentItems.filter(r=>r.name)})});
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:currentPerson.name,email:currentPerson.email,items:currentItems.filter(r=>r.name),note:note})});
     submittedEmails.add(currentPerson.email);
     showToast(`✅ ${currentPerson.name} 點餐成功！`);
     renderPeople();
