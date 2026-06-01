@@ -57,6 +57,7 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
 .set-drink-wrap label{font-size:0.78rem;color:var(--muted);display:block;margin-bottom:4px;}
 .set-drink-wrap select{font-family:inherit;font-size:0.85rem;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg);color:var(--text);cursor:pointer;width:100%;}
 .set-drink-wrap select:focus{outline:none;border-color:var(--yellow-dark);}
+.drink-extra{font-size:0.78rem;color:var(--red);margin-top:4px;display:none;}
 .egg-toggle{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;background:var(--bg);transition:0.15s;width:100%;}
 .egg-toggle:hover{border-color:var(--yellow-dark);background:var(--yellow-light);}
 .egg-toggle.selected{border:2px solid var(--yellow-dark);background:var(--yellow-light);}
@@ -156,6 +157,7 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
         <select id="set-drink-select" onchange="updateTotal()">
           <option value="">— 選擇飲品 —</option>
         </select>
+        <div class="drink-extra" id="drink-extra"></div>
       </div>
       <button class="egg-toggle" id="egg-toggle" onclick="toggleEgg()">
         <input type="checkbox" id="egg-check" onclick="event.stopPropagation()">
@@ -275,10 +277,17 @@ function buildDrinkSelect(){
     const items=MENU[cat];
     if(!items)return;
     h+=`<optgroup label="${cat}">`;
-    items.forEach(i=>{h+=`<option value="${i.name}">${i.name}（NT$${i.price}）</option>`;});
+    items.forEach(i=>{h+=`<option value="${i.name}|||${i.price}">${i.name}（NT$${i.price}）</option>`;});
     h+='</optgroup>';
   });
   document.getElementById('set-drink-select').innerHTML=h;
+}
+
+function getDrinkExtra(){
+  const sel=document.getElementById('set-drink-select');
+  if(!sel||!sel.value)return 0;
+  const price=parseInt(sel.value.split('|||')[1])||0;
+  return Math.max(0,price-130);
 }
 
 function selectSet(s){
@@ -302,7 +311,8 @@ function getTotal(){
   const main=currentItems.reduce((s,r)=>s+r.price*r.qty,0);
   const set=SET_PRICES[selectedSet]||0;
   const egg=wantEgg?30:0;
-  return main+set+egg;
+  const drinkExtra=selectedSet!=='none'?getDrinkExtra():0;
+  return main+set+egg+drinkExtra;
 }
 
 function renderItems(){
@@ -320,6 +330,10 @@ function renderItems(){
 }
 
 function updateTotal(){
+  const drinkExtra=selectedSet!=='none'?getDrinkExtra():0;
+  const extraEl=document.getElementById('drink-extra');
+  if(drinkExtra>0){extraEl.style.display='block';extraEl.textContent=`飲品超出 $130，需補差額 NT$${drinkExtra}`;}
+  else{extraEl.style.display='none';}
   const total=getTotal(),diff=BUDGET-total;
   document.getElementById('subtotal-amount').textContent=`NT$${total}`;
   document.getElementById('subtotal-amount').style.color=total>BUDGET?'var(--red)':'var(--text)';
@@ -345,6 +359,7 @@ function selectPerson(idx){
   document.getElementById('egg-check').checked=false;
   document.getElementById('egg-toggle').classList.remove('selected');
   document.getElementById('set-drink-wrap').style.display='none';
+  document.getElementById('drink-extra').style.display='none';
   document.querySelectorAll('.set-btn').forEach(b=>b.classList.remove('selected'));
   document.getElementById('set-none').classList.add('selected');
   showScreen('order');
@@ -359,8 +374,12 @@ async function submitOrder(){
   const allItems=[...validItems];
   if(selectedSet!=='none'){
     allItems.push({name:`${selectedSet}套餐`,qty:1,price:SET_PRICES[selectedSet]});
-    const drinkVal=document.getElementById('set-drink-select').value;
-    if(drinkVal)allItems.push({name:`套餐飲品：${drinkVal}`,qty:1,price:0});
+    const drinkSel=document.getElementById('set-drink-select');
+    if(drinkSel&&drinkSel.value){
+      const[dname,dprice]=drinkSel.value.split('|||');
+      const extra=Math.max(0,parseInt(dprice)-130);
+      allItems.push({name:`套餐飲品：${dname}`,qty:1,price:extra});
+    }
   }
   if(wantEgg)allItems.push({name:'溫泉蛋',qty:1,price:30});
   btn.disabled=true;btn.textContent='送出中...';
