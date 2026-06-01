@@ -9,25 +9,24 @@
 :root{--yellow:#F5C842;--yellow-light:#FFF8DC;--yellow-dark:#D4A017;--bg:#FAFAF7;--card:#FFFFFF;--text:#1A1A1A;--muted:#777;--border:#E8E4D9;--green:#2E7D4F;--green-bg:#EAF5EE;--red:#C0392B;--red-bg:#FDEDEC;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-header{background:var(--yellow);padding:1.5rem 1.5rem 1.2rem;text-align:center;border-bottom:3px solid var(--yellow-dark);}
+header{background:var(--yellow);padding:1.5rem 1.5rem 1.4rem;text-align:center;border-bottom:3px solid var(--yellow-dark);}
 header h1{font-size:1.6rem;font-weight:700;color:#1A1A1A;}
 header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
-.budget-chip{display:inline-block;margin-top:0.6rem;background:#fff;border:2px solid var(--yellow-dark);border-radius:99px;padding:3px 14px;font-size:0.82rem;font-weight:700;color:var(--yellow-dark);}
+.header-bottom{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:0.8rem;flex-wrap:wrap;}
+.budget-chip{background:#fff;border:2px solid var(--yellow-dark);border-radius:99px;padding:6px 20px;font-size:1.05rem;font-weight:700;color:var(--yellow-dark);}
+.budget-note{font-size:0.75rem;color:#7A5500;background:rgba(255,255,255,0.5);border-radius:99px;padding:4px 10px;}
 .nav-bar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1.5px solid var(--border);display:flex;z-index:100;}
 .nav-btn{flex:1;padding:12px 8px 10px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:0.72rem;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;transition:0.15s;}
 .nav-btn.active{color:var(--yellow-dark);font-weight:700;}
 .nav-btn .icon{font-size:1.3rem;}
 .screen{display:none;padding-bottom:80px;}
 .screen.active{display:block;}
-#screen-home{max-width:600px;margin:0 auto;padding:1.5rem;}
-#screen-home h2{font-size:1rem;font-weight:700;margin-bottom:1rem;text-align:center;color:var(--muted);}
 .people-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
 .people-btn{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer;text-align:left;font-family:inherit;transition:0.15s;display:flex;align-items:center;gap:10px;width:100%;}
 .people-btn:hover{border-color:var(--yellow-dark);background:var(--yellow-light);}
 .p-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
 .p-name{font-size:0.85rem;font-weight:700;}
 .p-status{font-size:0.72rem;color:var(--muted);margin-top:2px;}
-#screen-order{max-width:680px;margin:0 auto;padding:1.5rem;}
 .back-btn{background:none;border:none;cursor:pointer;font-family:inherit;font-size:0.85rem;color:var(--muted);padding:0 0 1rem;display:flex;align-items:center;gap:4px;}
 .back-btn:hover{color:var(--text);}
 .order-header{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:1rem;display:flex;align-items:center;gap:12px;}
@@ -57,8 +56,6 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
 .submit-btn{width:100%;padding:14px;background:var(--yellow);border:2px solid var(--yellow-dark);border-radius:12px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;transition:0.15s;color:#1A1A1A;}
 .submit-btn:hover{background:var(--yellow-dark);color:#fff;}
 .submit-btn:disabled{background:#ddd;border-color:#ccc;color:#999;cursor:not-allowed;}
-#screen-orders{max-width:680px;margin:0 auto;padding:1.5rem;}
-#screen-orders h2{font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;}
 .refresh-btn{background:none;border:1.5px solid var(--border);border-radius:8px;padding:6px 14px;font-family:inherit;font-size:0.82rem;color:var(--muted);cursor:pointer;margin-bottom:1rem;}
 .refresh-btn:hover{border-color:var(--yellow-dark);color:var(--yellow-dark);}
 .summary-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;}
@@ -78,6 +75,12 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
 .entry-note{font-size:0.78rem;color:var(--muted);margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border);}
 .badge-pending{background:#F0EFE8;color:#999;font-size:0.72rem;padding:2px 8px;border-radius:99px;}
 .badge-done{background:var(--green-bg);color:var(--green);font-size:0.72rem;padding:2px 8px;border-radius:99px;}
+.summary-section{background:var(--card);border:2px solid var(--yellow-dark);border-radius:14px;padding:16px 18px;margin-top:1.5rem;}
+.summary-section h3{font-size:1rem;font-weight:700;margin-bottom:12px;color:var(--yellow-dark);}
+.summary-item-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:0.88rem;}
+.summary-item-row:last-child{border-bottom:none;}
+.summary-item-qty{background:var(--yellow-light);color:var(--yellow-dark);font-weight:700;font-size:0.8rem;padding:2px 8px;border-radius:99px;min-width:32px;text-align:center;}
+.summary-grand{display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:2px solid var(--yellow-dark);font-weight:700;font-size:1rem;}
 .no-orders{text-align:center;padding:3rem;color:var(--muted);font-size:0.9rem;}
 .toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:10px 24px;border-radius:99px;font-size:0.85rem;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;z-index:999;}
 .toast.show{opacity:1;}
@@ -87,7 +90,10 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
 <header>
   <h1>🍽 TSA 聚餐點餐表</h1>
   <p>點選你的名字開始點餐</p>
-  <span class="budget-chip">每人額度 NT$600</span>
+  <div class="header-bottom">
+    <span class="budget-chip">每人額度 NT$600</span>
+    <span class="budget-note">超額請交給 Katy 💛</span>
+  </div>
 </header>
 
 <div id="screen-home" class="screen active">
@@ -104,7 +110,7 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
       <div class="order-avatar" id="order-avatar"></div>
       <div>
         <div class="order-name" id="order-name"></div>
-        <div style="font-size:0.82rem;color:var(--muted);margin-top:2px;">每人額度 NT$600</div>
+        <div style="font-size:0.82rem;color:var(--muted);margin-top:2px;">每人額度 NT$600｜超額請交給 Katy</div>
       </div>
     </div>
     <div class="order-card">
@@ -135,6 +141,7 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
       <div class="stat-card"><div class="stat-num" id="stat-total">-</div><div class="stat-label">預估總額</div></div>
     </div>
     <div id="orders-list"></div>
+    <div id="summary-section"></div>
   </div>
 </div>
 
@@ -196,8 +203,8 @@ function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
-  const navBtn=document.getElementById('nav-'+name);
-  if(navBtn)navBtn.classList.add('active');
+  const nb=document.getElementById('nav-'+name);
+  if(nb)nb.classList.add('active');
   if(name==='orders')loadOrders();
 }
 
@@ -235,7 +242,7 @@ function updateTotal(){
   const el=document.getElementById('budget-remain');
   if(total===0)el.innerHTML='';
   else if(diff>=0)el.innerHTML=`<span class="remain">剩餘額度 NT$${diff}</span>`;
-  else el.innerHTML=`<span class="exceed">超出預算 NT$${Math.abs(diff)}</span>`;
+  else el.innerHTML=`<span class="exceed">超出預算 NT$${Math.abs(diff)}，請交給 Katy</span>`;
   document.getElementById('submit-btn').disabled=currentItems.length===0||currentItems.some(r=>!r.name);
 }
 
@@ -274,6 +281,7 @@ async function submitOrder(){
 
 async function loadOrders(){
   document.getElementById('orders-list').innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);">載入中...</div>';
+  document.getElementById('summary-section').innerHTML='';
   try{
     const res=await fetch(SCRIPT_URL+'?t='+Date.now());
     const data=await res.json();
@@ -292,16 +300,15 @@ function renderOrders(data){
     grouped[email].items.push({name:row['品項'],qty:Number(row['數量']),price:Number(row['單價']),subtotal:Number(row['小計'])});
   });
   const orderedCount=Object.keys(grouped).length;
-  const pendingCount=PEOPLE.length-orderedCount;
   const grandTotal=Object.values(grouped).reduce((s,p)=>s+p.items.reduce((ss,i)=>ss+i.subtotal,0),0);
   document.getElementById('stat-ordered').textContent=orderedCount;
-  document.getElementById('stat-pending').textContent=pendingCount;
+  document.getElementById('stat-pending').textContent=PEOPLE.length-orderedCount;
   document.getElementById('stat-total').textContent=`$${grandTotal.toLocaleString()}`;
 
   let h='';
   if(orderedCount===0){
-    h='<div class="no-orders">目前還沒有人點餐</div>';
-    document.getElementById('orders-list').innerHTML=h;
+    document.getElementById('orders-list').innerHTML='<div class="no-orders">目前還沒有人點餐</div>';
+    document.getElementById('summary-section').innerHTML='';
     return;
   }
 
@@ -317,7 +324,7 @@ function renderOrders(data){
           <div class="entry-avatar" style="background:${c.bg};color:${c.tc}">${getInitials(p.name)}</div>
           <span class="entry-name">${p.name}</span>
           <span class="badge-done">已點餐</span>
-          <span class="entry-total${isOver?' over':''}" style="margin-left:8px">NT$${total}</span>
+          <span class="entry-total${isOver?' over':''}" style="margin-left:8px">NT$${total}${isOver?' ▲':''}</span>
           <span style="margin-left:6px;color:var(--muted);font-size:0.8rem">${isExp?'▲':'▼'}</span>
         </div>`;
       if(isExp){
@@ -338,6 +345,23 @@ function renderOrders(data){
     }
   });
   document.getElementById('orders-list').innerHTML=h;
+
+  // 餐點彙總
+  const itemMap={};
+  data.forEach(row=>{
+    const name=row['品項'];
+    const qty=Number(row['數量']);
+    const price=Number(row['單價']);
+    if(!itemMap[name])itemMap[name]={qty:0,price};
+    itemMap[name].qty+=qty;
+  });
+  const sortedItems=Object.entries(itemMap).sort((a,b)=>b[1].qty-a[1].qty);
+  let sh=`<div class="summary-section"><h3>🧾 餐點彙總（供餐廳參考）</h3>`;
+  sortedItems.forEach(([name,info])=>{
+    sh+=`<div class="summary-item-row"><span>${name}</span><div style="display:flex;align-items:center;gap:8px"><span class="summary-item-qty">×${info.qty}</span><span style="font-size:0.85rem;color:var(--muted)">NT$${info.price*info.qty}</span></div></div>`;
+  });
+  sh+=`<div class="summary-grand"><span>合計</span><span>NT$${grandTotal.toLocaleString()}</span></div></div>`;
+  document.getElementById('summary-section').innerHTML=sh;
 }
 
 function toggleOrder(email){
