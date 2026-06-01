@@ -24,11 +24,9 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
 .people-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
 .people-btn{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer;text-align:left;font-family:inherit;transition:0.15s;display:flex;align-items:center;gap:10px;width:100%;}
 .people-btn:hover{border-color:var(--yellow-dark);background:var(--yellow-light);}
-.people-btn.done{border-color:var(--green);background:var(--green-bg);}
 .p-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
 .p-name{font-size:0.85rem;font-weight:700;}
 .p-status{font-size:0.72rem;color:var(--muted);margin-top:2px;}
-.p-status.ok{color:var(--green);}
 #screen-order{max-width:680px;margin:0 auto;padding:1.5rem;}
 .back-btn{background:none;border:none;cursor:pointer;font-family:inherit;font-size:0.85rem;color:var(--muted);padding:0 0 1rem;display:flex;align-items:center;gap:4px;}
 .back-btn:hover{color:var(--text);}
@@ -65,8 +63,8 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
 .refresh-btn:hover{border-color:var(--yellow-dark);color:var(--yellow-dark);}
 .summary-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;}
 .stat-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px;text-align:center;}
-.stat-card .stat-num{font-size:1.3rem;font-weight:700;}
-.stat-card .stat-label{font-size:0.72rem;color:var(--muted);margin-top:2px;}
+.stat-num{font-size:1.3rem;font-weight:700;}
+.stat-label{font-size:0.72rem;color:var(--muted);margin-top:2px;}
 .order-entry{background:var(--card);border:1.5px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;}
 .order-entry-header{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;}
 .order-entry-header:hover{background:var(--yellow-light);}
@@ -78,12 +76,11 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
 .entry-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);font-size:0.85rem;}
 .entry-row:last-child{border-bottom:none;}
 .entry-note{font-size:0.78rem;color:var(--muted);margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border);}
-.no-orders{text-align:center;padding:3rem;color:var(--muted);font-size:0.9rem;}
-.loading-orders{text-align:center;padding:2rem;color:var(--muted);}
-.toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:10px 24px;border-radius:99px;font-size:0.85rem;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;z-index:999;}
-.toast.show{opacity:1;}
 .badge-pending{background:#F0EFE8;color:#999;font-size:0.72rem;padding:2px 8px;border-radius:99px;}
 .badge-done{background:var(--green-bg);color:var(--green);font-size:0.72rem;padding:2px 8px;border-radius:99px;}
+.no-orders{text-align:center;padding:3rem;color:var(--muted);font-size:0.9rem;}
+.toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:10px 24px;border-radius:99px;font-size:0.85rem;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;z-index:999;}
+.toast.show{opacity:1;}
 </style>
 </head>
 <body>
@@ -94,45 +91,51 @@ header p{margin-top:0.3rem;font-size:0.85rem;color:#555;}
 </header>
 
 <div id="screen-home" class="screen active">
-  <h2>請選擇你的名字</h2>
-  <div class="people-grid" id="people-grid"></div>
+  <div style="max-width:600px;margin:0 auto;padding:1.5rem;">
+    <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem;text-align:center;color:var(--muted);">請選擇你的名字</h2>
+    <div class="people-grid" id="people-grid"></div>
+  </div>
 </div>
 
 <div id="screen-order" class="screen">
-  <button class="back-btn" onclick="showScreen('home')">← 返回名單</button>
-  <div class="order-header">
-    <div class="order-avatar" id="order-avatar"></div>
-    <div>
-      <div class="order-name" id="order-name"></div>
-      <div style="font-size:0.82rem;color:var(--muted);margin-top:2px;">每人額度 NT$600</div>
+  <div style="max-width:680px;margin:0 auto;padding:1.5rem;">
+    <button class="back-btn" onclick="showScreen('home')">← 返回名單</button>
+    <div class="order-header">
+      <div class="order-avatar" id="order-avatar"></div>
+      <div>
+        <div class="order-name" id="order-name"></div>
+        <div style="font-size:0.82rem;color:var(--muted);margin-top:2px;">每人額度 NT$600</div>
+      </div>
     </div>
-  </div>
-  <div class="order-card">
-    <div id="order-items"></div>
-    <div class="note-wrap">
-      <div class="note-label">📝 備註（過敏、特殊需求等）</div>
-      <textarea id="order-note" placeholder="例如：不要香菜、對海鮮過敏..."></textarea>
+    <div class="order-card">
+      <div id="order-items"></div>
+      <div class="note-wrap">
+        <div class="note-label">📝 備註（過敏、特殊需求等）</div>
+        <textarea id="order-note" placeholder="例如：不要香菜、對海鮮過敏..."></textarea>
+      </div>
     </div>
-  </div>
-  <div class="subtotal-bar">
-    <div>
-      <div style="font-size:0.85rem;color:var(--muted);">小計</div>
-      <div id="budget-remain"></div>
+    <div class="subtotal-bar">
+      <div>
+        <div style="font-size:0.85rem;color:var(--muted);">小計</div>
+        <div id="budget-remain"></div>
+      </div>
+      <div class="subtotal-amount" id="subtotal-amount">NT$0</div>
     </div>
-    <div class="subtotal-amount" id="subtotal-amount">NT$0</div>
+    <button class="submit-btn" id="submit-btn" onclick="submitOrder()">✅ 確認送出點餐</button>
   </div>
-  <button class="submit-btn" id="submit-btn" onclick="submitOrder()">✅ 確認送出點餐</button>
 </div>
 
 <div id="screen-orders" class="screen">
-  <h2>📋 所有訂單</h2>
-  <button class="refresh-btn" onclick="loadOrders()">🔄 重新整理</button>
-  <div class="summary-stats">
-    <div class="stat-card"><div class="stat-num" id="stat-ordered">-</div><div class="stat-label">已點人數</div></div>
-    <div class="stat-card"><div class="stat-num" id="stat-pending">-</div><div class="stat-label">未點人數</div></div>
-    <div class="stat-card"><div class="stat-num" id="stat-total">-</div><div class="stat-label">預估總額</div></div>
+  <div style="max-width:680px;margin:0 auto;padding:1.5rem;">
+    <h2>📋 所有訂單</h2>
+    <button class="refresh-btn" onclick="loadOrders()">🔄 重新整理</button>
+    <div class="summary-stats">
+      <div class="stat-card"><div class="stat-num" id="stat-ordered">-</div><div class="stat-label">已點人數</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-pending">-</div><div class="stat-label">未點人數</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-total">-</div><div class="stat-label">預估總額</div></div>
+    </div>
+    <div id="orders-list"></div>
   </div>
-  <div id="orders-list"></div>
 </div>
 
 <nav class="nav-bar">
@@ -185,18 +188,18 @@ const PEOPLE=[
   {name:"Zong 宗",email:"marketing@tsagroup.com.tw"},
 ];
 const COLORS=[{bg:"#FFF0CC",tc:"#8A6000"},{bg:"#E8F4FF",tc:"#1A5C8A"},{bg:"#F0FFF4",tc:"#1A6B3A"},{bg:"#FFF0F5",tc:"#8A1A4A"},{bg:"#F5F0FF",tc:"#5A1A8A"},{bg:"#FFF5F0",tc:"#8A3A1A"},{bg:"#F0FFF9",tc:"#1A6B5A"}];
+let currentPerson=null,currentItems=[],expandedOrders=new Set(),allOrdersData=[];
 
-let currentPerson=null,currentItems=[],expandedOrders=new Set();
+function getInitials(n){return n.replace(/[a-z\s]/g,'').substring(0,2)||n.substring(0,2);}
 
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
-  document.getElementById('nav-'+name).classList.add('active');
-  if(name==='orders') loadOrders();
+  const navBtn=document.getElementById('nav-'+name);
+  if(navBtn)navBtn.classList.add('active');
+  if(name==='orders')loadOrders();
 }
-
-function getInitials(name){return name.replace(/[a-z\s]/g,'').substring(0,2)||name.substring(0,2);}
 
 function buildSelect(sel){
   let h='<select><option value="">— 選擇品項 —</option>';
@@ -241,7 +244,8 @@ function delItem(i){currentItems.splice(i,1);renderItems();}
 function changeQty(i,d){currentItems[i].qty=Math.max(1,currentItems[i].qty+d);renderItems();}
 
 function selectPerson(idx){
-  currentPerson=PEOPLE[idx];currentItems=[];
+  currentPerson=PEOPLE[idx];
+  currentItems=[];
   const c=COLORS[idx%COLORS.length];
   document.getElementById('order-avatar').textContent=getInitials(currentPerson.name);
   document.getElementById('order-avatar').style.background=c.bg;
@@ -255,9 +259,11 @@ function selectPerson(idx){
 async function submitOrder(){
   const btn=document.getElementById('submit-btn');
   const note=document.getElementById('order-note').value.trim();
+  const validItems=currentItems.filter(r=>r.name);
+  if(validItems.length===0)return;
   btn.disabled=true;btn.textContent='送出中...';
   try{
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:currentPerson.name,email:currentPerson.email,items:currentItems.filter(r=>r.name),note:note})});
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:currentPerson.name,email:currentPerson.email,items:validItems,note:note})});
     showToast(`✅ ${currentPerson.name} 點餐成功！`);
     setTimeout(()=>showScreen('home'),1500);
   }catch(e){
@@ -267,98 +273,80 @@ async function submitOrder(){
 }
 
 async function loadOrders(){
-  const list=document.getElementById('orders-list');
-  list.innerHTML='<div class="loading-orders">載入中...</div>';
+  document.getElementById('orders-list').innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);">載入中...</div>';
   try{
     const res=await fetch(SCRIPT_URL+'?t='+Date.now());
     const data=await res.json();
+    allOrdersData=data;
     renderOrders(data);
   }catch(e){
-    list.innerHTML='<div class="no-orders">載入失敗，請點重新整理</div>';
+    document.getElementById('orders-list').innerHTML='<div class="no-orders">載入失敗，請點重新整理</div>';
   }
 }
 
 function renderOrders(data){
-  const list=document.getElementById('orders-list');
-  // 按 email 分組
   const grouped={};
   data.forEach(row=>{
-    if(!grouped[row['Email']])grouped[row['Email']]={name:row['姓名'],email:row['Email'],items:[],note:row['備註']||''};
-    grouped[row['Email']].items.push({name:row['品項'],qty:row['數量'],price:row['單價'],subtotal:row['小計']});
+    const email=row['Email'];
+    if(!grouped[email]){grouped[email]={name:row['姓名'],email,items:[],note:row['備註']||''};}
+    grouped[email].items.push({name:row['品項'],qty:Number(row['數量']),price:Number(row['單價']),subtotal:Number(row['小計'])});
   });
-
-  const orderedEmails=Object.keys(grouped);
-  const orderedCount=orderedEmails.length;
+  const orderedCount=Object.keys(grouped).length;
   const pendingCount=PEOPLE.length-orderedCount;
-  const grandTotal=Object.values(grouped).reduce((s,p)=>s+p.items.reduce((ss,i)=>ss+Number(i.subtotal),0),0);
-
+  const grandTotal=Object.values(grouped).reduce((s,p)=>s+p.items.reduce((ss,i)=>ss+i.subtotal,0),0);
   document.getElementById('stat-ordered').textContent=orderedCount;
   document.getElementById('stat-pending').textContent=pendingCount;
   document.getElementById('stat-total').textContent=`$${grandTotal.toLocaleString()}`;
 
-  if(orderedEmails.length===0){
-    list.innerHTML='<div class="no-orders">目前還沒有人點餐</div>';
+  let h='';
+  if(orderedCount===0){
+    h='<div class="no-orders">目前還沒有人點餐</div>';
+    document.getElementById('orders-list').innerHTML=h;
     return;
   }
 
-  let h='<div style="font-size:0.8rem;color:var(--muted);margin-bottom:8px;">點擊姓名可展開明細</div>';
-
-  // 已點的人
   PEOPLE.forEach((p,i)=>{
     const g=grouped[p.email];
-    if(!g)return;
     const c=COLORS[i%COLORS.length];
-    const total=g.items.reduce((s,it)=>s+Number(it.subtotal),0);
-    const isOver=total>BUDGET;
-    const isExpanded=expandedOrders.has(p.email);
-    h+=`<div class="order-entry">
-      <div class="order-entry-header" onclick="toggleOrder('${p.email}')">
-        <div class="entry-avatar" style="background:${c.bg};color:${c.tc}">${getInitials(p.name)}</div>
-        <span class="entry-name">${p.name}</span>
-        <span class="badge-done">已點餐</span>
-        <span class="entry-total${isOver?' over':''}" style="margin-left:8px">NT$${total}</span>
-        <span style="margin-left:6px;color:var(--muted)">${isExpanded?'▲':'▼'}</span>
-      </div>`;
-    if(isExpanded){
-      h+=`<div class="entry-body">`;
-      g.items.forEach(it=>{
-        h+=`<div class="entry-row"><span>${it.name} ×${it.qty}</span><span>NT$${it.subtotal}</span></div>`;
-      });
-      if(g.note){h+=`<div class="entry-note">📝 ${g.note}</div>`;}
+    if(g){
+      const total=g.items.reduce((s,it)=>s+it.subtotal,0);
+      const isOver=total>BUDGET;
+      const isExp=expandedOrders.has(p.email);
+      h+=`<div class="order-entry">
+        <div class="order-entry-header" onclick="toggleOrder('${p.email}')">
+          <div class="entry-avatar" style="background:${c.bg};color:${c.tc}">${getInitials(p.name)}</div>
+          <span class="entry-name">${p.name}</span>
+          <span class="badge-done">已點餐</span>
+          <span class="entry-total${isOver?' over':''}" style="margin-left:8px">NT$${total}</span>
+          <span style="margin-left:6px;color:var(--muted);font-size:0.8rem">${isExp?'▲':'▼'}</span>
+        </div>`;
+      if(isExp){
+        h+=`<div class="entry-body">`;
+        g.items.forEach(it=>{h+=`<div class="entry-row"><span>${it.name} ×${it.qty}</span><span>NT$${it.subtotal}</span></div>`;});
+        if(g.note)h+=`<div class="entry-note">📝 ${g.note}</div>`;
+        h+=`</div>`;
+      }
       h+=`</div>`;
+    } else {
+      h+=`<div class="order-entry">
+        <div class="order-entry-header" style="cursor:default">
+          <div class="entry-avatar" style="background:${c.bg};color:${c.tc}">${getInitials(p.name)}</div>
+          <span class="entry-name">${p.name}</span>
+          <span class="badge-pending">未點餐</span>
+        </div>
+      </div>`;
     }
-    h+=`</div>`;
   });
-
-  // 未點的人
-  PEOPLE.forEach((p,i)=>{
-    if(grouped[p.email])return;
-    const c=COLORS[i%COLORS.length];
-    h+=`<div class="order-entry">
-      <div class="order-entry-header">
-        <div class="entry-avatar" style="background:${c.bg};color:${c.tc}">${getInitials(p.name)}</div>
-        <span class="entry-name">${p.name}</span>
-        <span class="badge-pending">未點餐</span>
-      </div>
-    </div>`;
-  });
-
-  list.innerHTML=h;
+  document.getElementById('orders-list').innerHTML=h;
 }
 
 function toggleOrder(email){
   if(expandedOrders.has(email))expandedOrders.delete(email);
   else expandedOrders.add(email);
-  document.getElementById('orders-list').querySelectorAll('.order-entry').forEach(el=>{
-    const header=el.querySelector('.order-entry-header');
-    if(header&&header.getAttribute('onclick')===`toggleOrder('${email}')`){
-      header.click();
-    }
-  });
-  // re-render without fetch
-  const list=document.getElementById('orders-list');
-  fetch(SCRIPT_URL+'?t='+Date.now()).then(r=>r.json()).then(data=>renderOrders(data)).catch(()=>{});
+  renderOrders(allOrdersData);
 }
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 function renderPeople(){
   let h='';
@@ -368,8 +356,6 @@ function renderPeople(){
   });
   document.getElementById('people-grid').innerHTML=h;
 }
-
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 renderPeople();
 </script>
